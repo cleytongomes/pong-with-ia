@@ -1,27 +1,38 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
-
-# Carregando os dados do CSV
-data = pd.read_csv("data.csv")
-
-# Dividindo os dados em conjuntos de treinamento e teste
-X = data[["parametro1", "parametro2", "parametro3"]]
-y = data["resultado"]
 
 
-# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+class Ia:
 
-# # Treinando o modelo com o conjunto de treinamento
-clf = RandomForestClassifier()
-clf.fit(X, y)
+    def __init__(self):
 
-# # Fazendo previsões com o conjunto de teste
-y_pred = clf.predict([["400","50","300"]])
+        # Carregando os dados do CSV
+        data = pd.read_csv("data.csv")
 
-print(y_pred)
+        # Dividindo os dados em conjuntos de treinamento e teste
+        X = data[["parametro1", "parametro2", "parametro3"]]
+        y = data["resultado"]
 
-# # Calculando a precisão do modelo
-# accuracy = accuracy_score(y_test, y_pred)
-# print("Precisão: ", accuracy)
+        # Treinando o modelo com o conjunto de treinamento
+        self.clf = RandomForestClassifier()
+        self.clf.fit(X.values, y.values)
+
+    def predict(self, ball_x, ball_y, bar_y):
+        
+        # Fazendo previsões com o conjunto de teste
+        y_pred = self.clf.predict([[ball_x, ball_y, bar_y]])
+
+        return (y_pred[0])
+
+    def move(self, ball, paddle, speed):
+
+        ret = self.predict(ball.x, ball.y, paddle.y - (paddle.height/2))
+
+        if ret == 'S':
+            paddle.move_y(-1 * speed)
+        elif ret == 'D':
+            paddle.move_y(speed)
+
+
+myIa = Ia()
+myIa.predict("400","50","300")

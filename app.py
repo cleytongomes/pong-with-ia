@@ -2,77 +2,110 @@
 from PPlay.window import *
 from PPlay.gameimage import *
 from PPlay.sprite import *
+from variaveis import *
 import random
+import time
 
 from ia import Ia
 
+# Cria a janela
+janela=Window(MAPA_WIDTH, MAPA_HEIGHT)
 
-speed_per_SECOND_X = (80 + random.random() * 20) * random.choice([1, -1])
-
-speed_per_SECOND_Y = (80 + random.random() * 20) * random.choice([1, -1])
-
-speed_peddle = 120
-
-janela=Window(800, 600)
-
+# Título do Jogo
 janela.set_title("Pong com IA")
- 
-fundo = GameImage("sprites/fancy-court.png")  
 
-paddle_left = Sprite("sprites/fancy-paddle-green.png")
-paddle_left.set_position(20,300)
+# Paddle esquerda
+paddle_esquerda = Sprite("paddle.png")
+paddle_esquerda.set_position(20,(MAPA_HEIGHT / 2) - (paddle_esquerda.height / 2))
 
-paddle_right = Sprite("sprites/fancy-paddle-blue.png")
-paddle_right.set_position(780 - paddle_right.width,300)
+# Paddle direira
+paddle_direita = Sprite("paddle.png")
+paddle_direita.set_position(780 - paddle_direita.width,(MAPA_HEIGHT / 2) - (paddle_direita.height / 2))
 
-ball = Sprite("sprites/fancy-ball.png")
-ball.set_position(400,300)
+# Bola
+bola = Sprite("bola.png")
+bola.set_position((MAPA_WIDTH / 2) - (bola.width / 2),(MAPA_HEIGHT / 2) - (bola.height / 2))
 
+# Direções da bola
+bola_direcao_vertical   = random.choice([ESQUERDA, DIREITA])
+bola_direcao_horizontal = random.choice([ESQUERDA, DIREITA])
+
+# Instância a Ia do Paddle
 paddle_Ia = Ia()
 
+# Pontucao
+pontos_paddle_esquerda = 0
+pontos_paddle_direita = 0
+
+# Aguarda uns segundos para o jogo iniciar
+time.sleep(1)
+
+# Game loop
 while True:
-    fundo.draw()
 
-    paddle_left.move_key_y(speed_peddle * janela.delta_time())
+    # Move o Paddle (Usuário)
+    paddle_esquerda.move_key_y(VELOCIDADE_PADDLE * janela.delta_time())
 
-    paddle_Ia.move(ball, paddle_right, speed_peddle * janela.delta_time())
+    # Move o Paddle (IA)
+    paddle_Ia.move(bola, paddle_direita, VELOCIDADE_PADDLE * janela.delta_time())
 
-    ball.move_x(speed_per_SECOND_X * janela.delta_time())
-    ball.move_y(speed_per_SECOND_Y * janela.delta_time())
+    # Move a Bola
+    bola.move_x(VELOCICADE_BOLA_X * bola_direcao_vertical * janela.delta_time())
+    bola.move_y(VELOCIDADE_BOLA_Y * bola_direcao_horizontal * janela.delta_time())
 
-    if(ball.collided(paddle_left)):
+    # Verifica colisão da bola com o Paddle da Esquerda
+    if(bola.collided(paddle_esquerda)):
+        bola.x = paddle_esquerda.x + paddle_esquerda.width
+        bola_direcao_vertical *= -1
+        paddle_Ia.grava_posicoes("ESQUERDA")
 
-        print(ball.x, paddle_left.x, paddle_left.width)
-        if( ball.x > paddle_left.x + paddle_left.width - 10):
-            speed_per_SECOND_X *= -1
+    # Verifica colisão da bola com o Paddle da Direita
+    elif(bola.collided(paddle_direita)):
+        bola.x = paddle_direita.x - bola.width
+        bola_direcao_vertical *= -1
+        paddle_Ia.grava_posicoes("DIREITA")
 
-    elif(ball.collided(paddle_right)):
-        speed_per_SECOND_X *= -1
+    # Verifica se o paddle da esquerda passou do topo ou fundo
+    if paddle_esquerda.y < 0:
+        paddle_esquerda.y = 0
+    elif paddle_esquerda.y + paddle_esquerda.height > 600:
+        paddle_esquerda.y = 600 - paddle_esquerda.height
 
-    if ball.y < 0:
-        ball.y = 0
-        speed_per_SECOND_Y *= -1
-    elif ball.y + ball.height > 600:
-        ball.y = 600 - ball.height
-        speed_per_SECOND_Y *= -1
+    # Verifica se o paddle da direira passou do topo ou fundo
+    if paddle_direita.y < 0:
+        paddle_direita.y = 0
+    elif paddle_direita.y + paddle_direita.height > 600:
+        paddle_direita.y = 600 - paddle_direita.height
 
-    if ball.x < 0:
-        ball.set_position(400,300)
-    elif ball.x + ball.width > 800:
-        ball.set_position(400,300)
+    # Verifica se a posição da bola passou do topo e fundo (Pontuacao)
+    if bola.y < 0:
+        bola.y = 0
+        bola_direcao_horizontal *= -1
 
-    if paddle_left.y < 0:
-        paddle_left.y = 0
-    elif paddle_left.y + paddle_left.height > 600:
-        paddle_left.y = 600 - paddle_left.height
+        pontos_paddle_direita +=1
 
-    if paddle_right.y < 0:
-        paddle_right.y = 0
-    elif paddle_right.y + paddle_right.height > 600:
-        paddle_right.y = 600 - paddle_right.height
+    elif bola.y + bola.height > 600:
+        bola.y = 600 - bola.height
+        bola_direcao_horizontal *= -1
 
-    ball.draw()
-    paddle_left.draw()
-    paddle_right.draw()
+        pontos_paddle_esquerda += 1
 
+    # Verifica se a posição da bola passou das laterais
+    if bola.x < 0:
+        bola.set_position(400,300)
+    elif bola.x + bola.width > 800:
+        bola.set_position(400,300)
+
+    # Salva as posições do paddle
+    paddle_Ia.salva_posicoes(bola, paddle_esquerda, paddle_direita)
+
+    # Pinta o fundo
+    janela.set_background_color((0,0,0))  # Vermelho
+
+    # Desenha os objetos
+    bola.draw()
+    paddle_esquerda.draw()
+    paddle_direita.draw()
+
+    # Atualiza a janela
     janela.update()  

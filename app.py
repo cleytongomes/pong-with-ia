@@ -3,6 +3,7 @@ from PPlay.window import *
 from PPlay.gameimage import *
 from PPlay.sprite import *
 from variaveis import *
+from PPlay.keyboard import *
 import random
 import time
 
@@ -13,6 +14,9 @@ janela=Window(MAPA_WIDTH, MAPA_HEIGHT)
 
 # Título do Jogo
 janela.set_title("Pong com IA")
+
+# Teclado
+teclado = Window.get_keyboard()
 
 # Paddle esquerda
 paddle_esquerda = Sprite("paddle.png")
@@ -43,11 +47,21 @@ time.sleep(1)
 # Game loop
 while True:
 
+    escolha_paddle_esquerda = 'P'
+    escolha_paddle_direita = 'P'
+
+    if(teclado.key_pressed("W")):
+        escolha_paddle_esquerda = 'S'
+        paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
+    elif(teclado.key_pressed("S")):
+        escolha_paddle_esquerda = 'D'
+        paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
+
     # Move o Paddle (Usuário)
     paddle_esquerda.move_key_y(VELOCIDADE_PADDLE * janela.delta_time())
 
     # Move o Paddle (IA)
-    paddle_Ia.move(bola, paddle_direita, VELOCIDADE_PADDLE * janela.delta_time())
+    escolha_paddle_direita = paddle_Ia.move(bola, paddle_direita, VELOCIDADE_PADDLE * janela.delta_time())
 
     # Move a Bola
     bola.move_x(VELOCICADE_BOLA_X * bola_direcao_vertical * janela.delta_time())
@@ -77,27 +91,31 @@ while True:
     elif paddle_direita.y + paddle_direita.height > 600:
         paddle_direita.y = 600 - paddle_direita.height
 
-    # Verifica se a posição da bola passou do topo e fundo (Pontuacao)
+    # Verifica se a posição da bola passou do topo e fundo
     if bola.y < 0:
         bola.y = 0
         bola_direcao_horizontal *= -1
-
-        pontos_paddle_direita +=1
 
     elif bola.y + bola.height > 600:
         bola.y = 600 - bola.height
         bola_direcao_horizontal *= -1
 
-        pontos_paddle_esquerda += 1
-
-    # Verifica se a posição da bola passou das laterais
+    # Verifica se a posição da bola passou das laterais (Pontuacao)
     if bola.x < 0:
         bola.set_position(400,300)
+        bola_direcao_vertical *= -1
+        pontos_paddle_direita +=1
+        paddle_Ia.reseta_posicoes()
+        paddle_Ia.re_treinar()
     elif bola.x + bola.width > 800:
         bola.set_position(400,300)
+        bola_direcao_vertical *= -1
+        pontos_paddle_esquerda += 1
+        paddle_Ia.reseta_posicoes()
+        paddle_Ia.re_treinar()
 
     # Salva as posições do paddle
-    paddle_Ia.salva_posicoes(bola, paddle_esquerda, paddle_direita)
+    paddle_Ia.salva_posicoes(bola, paddle_esquerda, paddle_direita, escolha_paddle_esquerda, escolha_paddle_direita)
 
     # Pinta o fundo
     janela.set_background_color((0,0,0))  # Vermelho

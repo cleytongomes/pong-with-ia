@@ -1,7 +1,7 @@
 import random
 
 VELOCICADE_BOLA_X = 80 + random.random() * 20
-VELOCIDADE_BOLA_Y = 0 #80 + random.random() * 20
+VELOCIDADE_BOLA_Y = 80 + random.random() * 20
 VELOCIDADE_PADDLE = 120
 
 ESQUERDA = 1

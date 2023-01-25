@@ -1,6 +1,7 @@
 import configparser
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+import random
 
 class Ia:
 
@@ -29,6 +30,21 @@ class Ia:
         self.posicoes_paddle_esquerda = [] # usuário
         self.posicoes_paddle_direita = [] # IA
 
+        self.escolhas_paddle_esquerda = [] # usuário
+        self.escolhas_paddle_direita = [] # IA
+
+    def re_treinar(self):
+        # Carregando os dados do CSV
+        if self.cfg['MODO']['BASE_TREINAMENTO'] == "USUARIO":
+            data = pd.read_csv("treinamento_usuario.csv")
+        elif self.cfg['MODO']['BASE_TREINAMENTO'] == "IA":
+            data = pd.read_csv("treinamento_ia.csv")
+
+        # Dividindo os dados em conjuntos de treinamento e teste
+        X = data[["bola_x", "bola_y", "centro_paddle"]]
+        y = data["resultado"]
+        self.clf.fit(X.values, y.values)
+
     def predict(self, bola_x, bola_y, bar_y):
         
         # Fazendo previsões com o conjunto de teste
@@ -47,36 +63,56 @@ class Ia:
         elif ret == 'D':
             paddle.move_y(speed)
 
-    def salva_posicoes(self, bola, paddle_esquerda, paddle_direita):
+        return ret
+
+    def salva_posicoes(self, bola, paddle_esquerda, paddle_direita, escolha_paddle_esquerda, escolha_paddle_direita):
         self.posicoes_bola.append([bola.x + (bola.width/2), bola.y + (bola.height/2)])
         self.posicoes_paddle_esquerda.append(paddle_esquerda.y + (paddle_esquerda.height/2))
         self.posicoes_paddle_direita.append(paddle_direita.y + (paddle_direita.height/2))
+        self.escolhas_paddle_esquerda.append(escolha_paddle_esquerda)
+        self.escolhas_paddle_direita.append(escolha_paddle_direita)
     
     def grava_posicoes(self, lado_paddle):
         
         file = ""
         paddle = ""
+        escolhas = ""
 
         if lado_paddle == "ESQUERDA":
             file = "treinamento_usuario.csv"
             paddle = self.posicoes_paddle_esquerda
+            escolhas = self.escolhas_paddle_esquerda
+
         elif lado_paddle == "DIREITA":
             file = "treinamento_ia.csv"
             paddle = self.posicoes_paddle_direita
+            escolhas = self.escolhas_paddle_direita
 
         with open(file, mode='a', encoding='UTF-8') as f:
-            print(list(zip(self.posicoes_bola, paddle)))
-            for bola_p, paddle_y in list(zip(self.posicoes_bola, paddle)):
-                bola_x, bola_y = bola_p
-                
-                f.write(f'{bola_x},{bola_y},{paddle_y}\n')
 
-            
-        
+            # Pega somente 1% das posições 
+            posicoes = list(zip(self.posicoes_bola, paddle, escolhas))
+            posicoes = random.sample(posicoes, int( 0.1 * len(posicoes) ))
+
+            if lado_paddle == "ESQUERDA":
+                for bola_p, paddle_y, escolha in posicoes:
+                    bola_x, bola_y = map(int,bola_p)
+                    f.write(f'\n{800 - bola_x},{bola_y},{int(paddle_y)},{escolha}')
+            elif lado_paddle == "DIREITA":
+                for bola_p, paddle_y, escolha in posicoes:
+                    bola_x, bola_y = map(int,bola_p)
+                    f.write(f'\n{bola_x},{bola_y},{int(paddle_y)},{escolha}')
+
         self.posicoes_bola = []
         self.posicoes_paddle_esquerda = []
         self.posicoes_paddle_direita = []
 
+    def reseta_posicoes(self):
+        self.posicoes_bola  = []
+        self.posicoes_paddle_esquerda   = []
+        self.posicoes_paddle_direita    = []
+        self.escolhas_paddle_esquerda   = []
+        self.escolhas_paddle_direita    = []
 
 if __name__ == '__main__':
     myIa = Ia()

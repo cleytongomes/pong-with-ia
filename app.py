@@ -41,15 +41,20 @@ paddle_Ia = Ia()
 pontos_paddle_esquerda = 0
 pontos_paddle_direita = 0
 
+# Incrementador de Velocidade (Altera o ângulo)
+incre_velocidade_lateral_bola = 0
+
 # Aguarda uns segundos para o jogo iniciar
 time.sleep(1)
 
 # Game loop
 while True:
 
+    # Decisão de movimentação
     escolha_paddle_esquerda = 'P'
     escolha_paddle_direita = 'P'
 
+    # Movimentação Usuário (Teclado)
     if(teclado.key_pressed("W")):
         escolha_paddle_esquerda = 'S'
         paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
@@ -57,15 +62,20 @@ while True:
         escolha_paddle_esquerda = 'D'
         paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
 
-    # Move o Paddle (Usuário)
-    paddle_esquerda.move_key_y(VELOCIDADE_PADDLE * janela.delta_time())
+    # Movimentação Automática (Lógica)
+    if( bola.y < paddle_esquerda.y ):
+        escolha_paddle_esquerda = 'S'
+        paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
+    elif( bola.y > paddle_esquerda.y + paddle_esquerda.height ):
+        escolha_paddle_esquerda = 'D'
+        paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
 
     # Move o Paddle (IA)
     escolha_paddle_direita = paddle_Ia.move(bola, paddle_direita, VELOCIDADE_PADDLE * janela.delta_time())
 
     # Move a Bola
-    bola.move_x(VELOCICADE_BOLA_X * bola_direcao_vertical * janela.delta_time())
-    bola.move_y(VELOCIDADE_BOLA_Y * bola_direcao_horizontal * janela.delta_time())
+    bola.move_x((VELOCICADE_BOLA_X) * bola_direcao_vertical * janela.delta_time())
+    bola.move_y((VELOCIDADE_BOLA_Y + incre_velocidade_lateral_bola) * bola_direcao_horizontal * janela.delta_time())
 
     # Verifica colisão da bola com o Paddle da Esquerda
     if(bola.collided(paddle_esquerda)):
@@ -105,12 +115,22 @@ while True:
         bola.set_position(400,300)
         bola_direcao_vertical *= -1
         pontos_paddle_direita +=1
+        
+        paddle_esquerda.y = (MAPA_HEIGHT / 2) - (paddle_esquerda.height / 2)
+        paddle_direita.y = (MAPA_HEIGHT / 2) - (paddle_direita.height / 2)
+        
+        incre_velocidade_lateral_bola = random.choice([-1, 1]) * random.randint(30,60)
         paddle_Ia.reseta_posicoes()
         paddle_Ia.re_treinar()
     elif bola.x + bola.width > 800:
         bola.set_position(400,300)
         bola_direcao_vertical *= -1
         pontos_paddle_esquerda += 1
+
+        paddle_esquerda.y = (MAPA_HEIGHT / 2) - (paddle_esquerda.height / 2)
+        paddle_direita.y = (MAPA_HEIGHT / 2) - (paddle_direita.height / 2)
+
+        incre_velocidade_lateral_bola = random.choice([-1, 1]) * random.randint(30,60)
         paddle_Ia.reseta_posicoes()
         paddle_Ia.re_treinar()
 

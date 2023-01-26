@@ -33,23 +33,39 @@ class Ia:
         self.escolhas_paddle_esquerda = [] # usuário
         self.escolhas_paddle_direita = [] # IA
 
+        self.treinar = False
+
     def re_treinar(self):
-        # Carregando os dados do CSV
-        if self.cfg['MODO']['BASE_TREINAMENTO'] == "USUARIO":
-            data = pd.read_csv("treinamento_usuario.csv")
-        elif self.cfg['MODO']['BASE_TREINAMENTO'] == "IA":
-            data = pd.read_csv("treinamento_ia.csv")
 
-        # Dividindo os dados em conjuntos de treinamento e teste
-        X = data[["bola_x", "bola_y", "centro_paddle"]]
-        y = data["resultado"]
-        self.clf.fit(X.values, y.values)
+        # Verifica se é necessário treinar
+        if self.treinar:
 
-    def predict(self, bola_x, bola_y, bar_y):
-        
+            # Carregando os dados do CSV
+            if self.cfg['MODO']['BASE_TREINAMENTO'] == "USUARIO":
+                data = pd.read_csv("treinamento_usuario.csv")
+            elif self.cfg['MODO']['BASE_TREINAMENTO'] == "IA":
+                data = pd.read_csv("treinamento_ia.csv")
+
+            # Dividindo os dados em conjuntos de treinamento e teste
+            X = data[["bola_x", "bola_y", "centro_paddle"]]
+            y = data["resultado"]
+            self.clf.fit(X.values, y.values)
+
+            self.treinar = False
+
+    def predict(self, bola_x, bola_y, padde_y):
+        """
+        Realiza a predição do movimento que o paddle deve fazer
+        Args:   	
+            bola_x (int): posição no eixo x atual da bola
+            bola_y (int): posição no eixo y atual da bola
+            padde_y (int): posição no eixo y do padde
+        """
+
         # Fazendo previsões com o conjunto de teste
-        y_pred = self.clf.predict([[bola_x, bola_y, bar_y]])
+        y_pred = self.clf.predict([[bola_x, bola_y, padde_y]])
 
+        # Retorna a predição
         return (y_pred[0])
 
     def move(self, bola, paddle, speed):
@@ -74,6 +90,9 @@ class Ia:
     
     def grava_posicoes(self, lado_paddle):
         
+        # Libera o treinamento
+        self.treinar = True
+
         file = ""
         paddle = ""
         escolhas = ""

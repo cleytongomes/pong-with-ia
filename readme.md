@@ -23,4 +23,7 @@ Para jogar, execute o arquivo principal do jogo, "pong_com_ia.py"
 - O jogo tem uma pausa de 1 segundo antes de iniciar.
 - A IA grava as posições da bola em cada colisão e usa essas informações para prever a próxima posição da bola e mover o paddle da direita de acordo.
 
+## Imagem
+![Print](imagens/print.png)
+
 Divirta-se!

@@ -4,10 +4,15 @@ from PPlay.gameimage import *
 from PPlay.sprite import *
 from variaveis import *
 from PPlay.keyboard import *
+from configparser import ConfigParser
 import random
 import time
 
 from ia import Ia
+
+# Inicia o configparser
+config = ConfigParser()
+config.read('config.ini', encoding='UTF-8')
 
 # Cria a janela
 janela=Window(MAPA_WIDTH, MAPA_HEIGHT)
@@ -54,23 +59,25 @@ while True:
     escolha_paddle_esquerda = 'P'
     escolha_paddle_direita = 'P'
 
-    # Movimentação Usuário (Teclado)
-    if(teclado.key_pressed("W")):
-        escolha_paddle_esquerda = 'S'
-        paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
-    elif(teclado.key_pressed("S")):
-        escolha_paddle_esquerda = 'D'
-        paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
+    # Movimentação Paddle Esquerda
+    if (config['MODO']['MOVIMENTACAO_PADDLE_ESQUERDA'] == 'USUARIO'):
+        # Movimentação Usuário (Teclado)
+        if(teclado.key_pressed("W")):
+            escolha_paddle_esquerda = 'S'
+            paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
+        elif(teclado.key_pressed("S")):
+            escolha_paddle_esquerda = 'D'
+            paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
+    else:
+        # Movimentação Automática (Lógica)
+        if( bola.y < paddle_esquerda.y ):
+            escolha_paddle_esquerda = 'S'
+            paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
+        elif( bola.y > paddle_esquerda.y + paddle_esquerda.height ):
+            escolha_paddle_esquerda = 'D'
+            paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
 
-    # Movimentação Automática (Lógica)
-    if( bola.y < paddle_esquerda.y ):
-        escolha_paddle_esquerda = 'S'
-        paddle_esquerda.move_y(VELOCIDADE_PADDLE * -1 * janela.delta_time())
-    elif( bola.y > paddle_esquerda.y + paddle_esquerda.height ):
-        escolha_paddle_esquerda = 'D'
-        paddle_esquerda.move_y(VELOCIDADE_PADDLE * janela.delta_time())
-
-    # Move o Paddle (IA)
+    # Movimentação Paddle Direita (IA)
     escolha_paddle_direita = paddle_Ia.move(bola, paddle_direita, VELOCIDADE_PADDLE * janela.delta_time())
 
     # Move a Bola

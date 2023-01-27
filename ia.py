@@ -13,9 +13,9 @@ class Ia:
 
         # Carregando os dados do CSV
         if self.cfg['MODO']['BASE_TREINAMENTO'] == "USUARIO":
-            data = pd.read_csv("treinamento_usuario.csv")
+            data = pd.read_csv("dados/treinamento_usuario.csv")
         elif self.cfg['MODO']['BASE_TREINAMENTO'] == "IA":
-            data = pd.read_csv("treinamento_ia.csv")
+            data = pd.read_csv("dados/treinamento_ia.csv")
 
         # Dividindo os dados em conjuntos de treinamento e teste
         X = data[["bola_x", "bola_y", "centro_paddle"]]
@@ -33,12 +33,15 @@ class Ia:
         self.escolhas_paddle_esquerda = [] # usuário
         self.escolhas_paddle_direita = [] # IA
 
-        self.treinar = False
+        self.necessita_treinar = False
 
     def re_treinar(self):
+        """
+        Treina novamente o modelo caso seja necessário
+        """
 
         # Verifica se é necessário treinar
-        if self.treinar:
+        if self.necessita_treinar:
 
             # Carregando os dados do CSV para realizar o treinamento
             if self.cfg['MODO']['BASE_TREINAMENTO'] == "USUARIO":
@@ -51,7 +54,7 @@ class Ia:
             y = data["resultado"]
             self.clf.fit(X.values, y.values)
 
-            self.treinar = False
+            self.necessita_treinar = False
 
     def predict(self, bola_x, bola_y, padde_y):
         """
@@ -91,7 +94,7 @@ class Ia:
     def grava_posicoes(self, lado_paddle):
         
         # Libera o treinamento
-        self.treinar = True
+        self.necessita_treinar = True
 
         file = ""
         paddle = ""

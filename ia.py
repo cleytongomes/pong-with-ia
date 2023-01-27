@@ -40,11 +40,11 @@ class Ia:
         # Verifica se é necessário treinar
         if self.treinar:
 
-            # Carregando os dados do CSV
+            # Carregando os dados do CSV para realizar o treinamento
             if self.cfg['MODO']['BASE_TREINAMENTO'] == "USUARIO":
-                data = pd.read_csv("treinamento_usuario.csv")
+                data = pd.read_csv("dados/treinamento_usuario.csv")
             elif self.cfg['MODO']['BASE_TREINAMENTO'] == "IA":
-                data = pd.read_csv("treinamento_ia.csv")
+                data = pd.read_csv("dados/treinamento_ia.csv")
 
             # Dividindo os dados em conjuntos de treinamento e teste
             X = data[["bola_x", "bola_y", "centro_paddle"]]
@@ -98,12 +98,12 @@ class Ia:
         escolhas = ""
 
         if lado_paddle == "ESQUERDA":
-            file = "treinamento_usuario.csv"
+            file = "dados/treinamento_usuario.csv"
             paddle = self.posicoes_paddle_esquerda
             escolhas = self.escolhas_paddle_esquerda
 
         elif lado_paddle == "DIREITA":
-            file = "treinamento_ia.csv"
+            file = "dados/treinamento_ia.csv"
             paddle = self.posicoes_paddle_direita
             escolhas = self.escolhas_paddle_direita
 

@@ -19,15 +19,15 @@ janela.set_title("Pong com IA")
 teclado = Window.get_keyboard()
 
 # Paddle esquerda
-paddle_esquerda = Sprite("paddle.png")
+paddle_esquerda = Sprite("sprites/paddle.png")
 paddle_esquerda.set_position(20,(MAPA_HEIGHT / 2) - (paddle_esquerda.height / 2))
 
 # Paddle direira
-paddle_direita = Sprite("paddle.png")
+paddle_direita = Sprite("sprites/paddle.png")
 paddle_direita.set_position(780 - paddle_direita.width,(MAPA_HEIGHT / 2) - (paddle_direita.height / 2))
 
 # Bola
-bola = Sprite("bola.png")
+bola = Sprite("sprites/bola.png")
 bola.set_position((MAPA_WIDTH / 2) - (bola.width / 2),(MAPA_HEIGHT / 2) - (bola.height / 2))
 
 # Direções da bola

@@ -40,7 +40,11 @@ python pong.py
 - A IA grava as posições da bola em cada colisão e usa essas informações para prever a próxima posição da bola e mover o paddle da direita de acordo.
 
 ## Demonstração
-![Print](imagens/print.png)
+<p align="center">
+    <img src="imagens/pong.gif" />
+</p>
 
 ## Contribuição
-Sinta-se à vontade para contribuir com o projeto! Você pode abrir uma issue para relatar um bug, sugerir uma melhoria ou implementar uma nova funcionalidade. Além disso, pull requests são sempre bem-vindos!
+Sinta-se à vontade para contribuir com o projeto! Você pode abrir uma issue para relatar um bug, sugerir uma melhoria ou implementar uma nova funcionalidade.
+
+Além disso, pull requests são sempre bem-vindos!
